@@ -1,0 +1,111 @@
+*, ::before, ::after {
+  box-sizing: border-box;
+}
+:root {
+  font-family: 'Miriam Libre', serif;
+}
+
+.card {
+  border: 2px solid black;
+  border-radius: .49em;
+  width: 16.875em;
+  height: 25.625em;
+  position: relative;
+}
+
+.identifier {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  padding: .5em 1em;
+}
+.key {
+  font-size: 3em;
+}
+.identifier .type {
+  max-height: 4em;
+  width: auto;
+}
+.hidden {
+  display: none;
+}
+
+.identifier.bottom {
+  bottom: 0;
+  transform: rotate(180deg);
+}
+
+.identifier.center {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: .4em;
+  align-items: center;
+  padding: 3.75em;
+  height: 100%;
+}
+
+.pip {
+  grid-row: span 2;
+}
+.pip img {
+  max-width: 100%;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* Pip - top left */
+.pip:first-child {
+  grid-column-start: 1;
+}
+/* Pip - top right */
+.pip:nth-child(2) {
+  grid-column-start: 3;
+}
+/* Pip - 2nd row left */
+.pip:nth-child(3) {
+  grid-column-start: 1;
+  grid-row: 3/span 2;
+}
+/* Pip - 2nd row right */
+.pip:nth-child(4) {
+  grid-column-start: 3;
+  grid-row: 3/span 2;
+}
+/* Pip - 3rd row left */
+.pip:nth-child(5) {
+  grid-column-start: 1;
+  grid-row: 5/span 2;
+  transform: rotate(180deg);
+}
+/* Pip - 3rd row right */
+.pip:nth-child(6) {
+  grid-column-start: 3;
+  grid-row: 5/span 2;
+  transform: rotate(180deg);
+}
+/* Pip - bottom row left */
+.pip:nth-child(7) {
+  grid-column-start: 1;
+  grid-row: 7/span 2;
+  transform: rotate(180deg);
+}
+/* Pip - bottom row right */
+.pip:nth-child(8) {
+  grid-column-start: 3;
+  grid-row: 7/span 2;
+  transform: rotate(180deg);
+}
+/* Pip - mid column top */
+.pip:nth-child(9) {
+  grid-column-start: 2;
+  grid-row: 2/span 2;
+}
+/* Pip - bottom row right */
+.pip:nth-child(10) {
+  grid-column-start: 2;
+  grid-row: 6/span 2;
+  transform: rotate(180deg);
+}
