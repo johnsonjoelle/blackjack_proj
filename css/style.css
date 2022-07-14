@@ -6,9 +6,24 @@
   font-size: 1vh;
 }
 
+section {
+  border: 1px solid black;
+  padding: 20px 10px;
+}
+
 img {
   max-width: 100%;
   height: auto;
+}
+
+#dealer,
+#hand {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card:not(:first-child) {
+  margin-left: -10em;
 }
 
 .card {
@@ -164,11 +179,5 @@ img {
 /* Pip - 3 row total, mid bottom */ 
 [data-card="8"] .pip:nth-child(8) {
   grid-row: 5/span 3;
+  transform: rotate(180deg);
 }
-/* Pip - large / Icon */
-/* [data-card="A"] .pip,
-[data-card="J"] .pip,
-[data-card="Q"] .pip,
-[data-card="K"] .pip {
-  
-} */
