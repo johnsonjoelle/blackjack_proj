@@ -9,7 +9,18 @@
 </head>
 <body>
   <main>
-    <article class="card">
+
+    <section id="dealer"></section>
+    <section id="table">
+      <div class="deck"></div>
+      <div class="totals"></div>
+    </section>
+    <section id="hand"></section>
+    <section id="controls">
+      <button id="draw-btn">Draw Card</button>
+    </section>
+
+    <!-- <article class="card" data-card="10" data-suite="spade">
       <div class="identifier top">
         <b class="key">10</b>
         <img class="type hidden" src="img/spade.svg">
@@ -31,8 +42,55 @@
         <img class="type hidden" src="img/spade.svg">
       </div>
     </article>
+
+    <article class="card" data-card="5">
+      <div class="identifier top">
+        <b class="key">5</b>
+        <img class="type hidden" src="img/spade.svg">
+      </div>
+      <div class="identifier center">
+        <div class="pip"><img src="img/spade.svg"></div>
+        <div class="pip"><img src="img/spade.svg"></div>
+        <div class="pip"><img src="img/spade.svg"></div>
+        <div class="pip"><img src="img/spade.svg"></div>
+        <div class="pip"><img src="img/spade.svg"></div>
+      </div>
+      <div class="identifier bottom">
+        <b class="key">5</b>
+        <img class="type hidden" src="img/spade.svg">
+      </div>
+    </article>
+
+    <article class="card" data-card="K">
+      <div class="identifier top">
+        <b class="key">K</b>
+        <img class="type" src="img/spade.svg">
+      </div>
+      <div class="identifier center">
+        <div class="pip"><img src="img/king_black.svg"></div>
+      </div>
+      <div class="identifier bottom">
+        <b class="key">K</b>
+        <img class="type" src="img/spade.svg">
+      </div>
+    </article>
+
+    <article class="card" data-card="A">
+      <div class="identifier top">
+        <b class="key">A</b>
+        <img class="type" src="img/spade.svg">
+      </div>
+      <div class="identifier center">
+        <div class="pip"><img src="img/spade.svg"></div>
+      </div>
+      <div class="identifier bottom">
+        <b class="key">A</b>
+        <img class="type" src="img/spade.svg">
+      </div>
+    </article> -->
   </main>
 
+  <script src="js/jquery-3.6.0.min.js"></script>
   <script src="js/script.js"></script>
 </body>
 </html>
