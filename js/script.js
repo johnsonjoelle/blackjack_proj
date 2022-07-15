@@ -170,21 +170,40 @@ function drawCard() {
   sumCards()
 }
 
+// * Check Total
+function checkTotal(total) {
+  if (total>21) {
+    return 'lose';
+  } else if (total<21) {
+    return 'continue';
+  } else {
+    return 'win'
+  }
+}
+
 // * Sum Cards
 function sumCards() {
+  let gameState;
   if (turn == 'player') {
     playerCardTotal += tempCardVal;
     $('.player-count').text(playerCardTotal);
+    gameState = checkTotal(playerCardTotal);
   } else {
     dealerCardTotal += tempCardVal;
     $('.dealer-count').text(dealerCardTotal);
+    gameState = checkTotal(dealerCardTotal);
   }
-  changeTurns(turn);
+
+  if (gameState == 'continue') {
+    changeTurns(turn);
+  } else {
+    endGame(gameState);
+  }
 }
 
 // * Shuffle Deck
 function shuffleDeck() {
-  deck = [...cards]
+  deck = [...cards];
   let currentIndex = deck.length;
   let tempValue;
   let randomIndex;
@@ -198,6 +217,22 @@ function shuffleDeck() {
     // console.log(`${deck[currentIndex]} switched with ${deck[randomIndex]}`);
   }
   return deck;
+}
+
+function endGame(state) {
+  if (turn=='player') {
+    if (state=='win') {
+      console.log('You win!');
+    } else {
+      console.log('You lose!');
+    }
+  } else {
+    if (state=='win') {
+      console.log('You lose!');
+    } else {
+      console.log('You win!');
+    }
+  }
 }
 
 function init() {
