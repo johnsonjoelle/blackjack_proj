@@ -23,6 +23,10 @@ let dealerCardTotal = 0;
 const cardLimit = 21;
 const playerTurn = 'player';
 const dealerTurn = 'dealer';
+let dealerHasAce = false;
+let dealerAceIsEleven = false;
+let playerHasAce = false;
+let playerAceIsEleven = false;
 let turn = playerTurn;
 let tempCardVal;
 
@@ -80,23 +84,21 @@ function createCardFace(cardData) {
   let centerContent = ``;
   let color = 'red';
   let royal;
+  let num;
   if (isNaN(cardData.num) && cardData.num!='A') {
+    num = 10;
     if (cardData.suite=='spade' || cardData.suite=='club') {
       color = 'black';
     }
-    let num;
     switch (cardData.num) {
       case 'J':
         royal = 'jack';
-        num = 11;
         break;
       case 'Q':
         royal = 'queen';
-        num = 12;
         break;
       case 'K':
         royal = 'king';
-        num = 13;
         break;
     
       default:
@@ -119,9 +121,8 @@ function createCardFace(cardData) {
           <img class="type" src="img/${cardData.suite}.svg">
         </div>
       </article>`;
-    tempCardVal = num;
   } else {
-    let num = 1;
+    num = 1;
     if (!isNaN(cardData.num)) {
       num = cardData.num;
     }
@@ -142,8 +143,8 @@ function createCardFace(cardData) {
           <img class="type hidden" src="img/${cardData.suite}.svg">
         </div>
       </article>`;
-    tempCardVal = num;
   }
+  tempCardVal = num;
   return cardFace;
 }
 
@@ -181,9 +182,47 @@ function checkTotal(total) {
   }
 }
 
+function hasNewAce() {
+  let aceValue;
+  if (turn=='player') {
+    if (playerHasAce == true) {
+      return 1;
+    } else {
+      playerHasAce = true;
+      aceValue = checkAceValue(playerCardTotal);
+      return aceValue;
+    }
+  } else {
+    if (dealerHasAce == true) {
+      return 1;
+    } else {
+      dealerHasAce = true;
+      aceValue = checkAceValue(dealerCardTotal);
+      return aceValue;
+    }
+  }
+}
+
+function changeAceValue(currentCardTotal) {
+  let newCardTotal = currentCardTotal - 10;
+  return newCardTotal;
+}
+
+function checkAceValue(currentCardTotal) {
+  let elevenTotal = currentCardTotal + 11;
+  if (elevenTotal > 21) {
+    return 1;
+  } else {
+    return 11;
+  }
+}
+
 // * Sum Cards
 function sumCards() {
   let gameState;
+  if (tempCardVal == 1) {
+    tempCardVal = hasNewAce();
+  }
   if (turn == 'player') {
     playerCardTotal += tempCardVal;
     $('.player-count').text(playerCardTotal);
@@ -197,7 +236,7 @@ function sumCards() {
   if (gameState == 'continue') {
     changeTurns(turn);
   } else {
-    endGame(gameState);
+    checkEndGame(gameState);
   }
 }
 
@@ -219,20 +258,42 @@ function shuffleDeck() {
   return deck;
 }
 
-function endGame(state) {
+function checkEndGame(state) {
   if (turn=='player') {
     if (state=='win') {
       console.log('You win!');
+      endGame();
     } else {
-      console.log('You lose!');
+      // check if player has Ace that is counted as 11
+      if (playerHasAce == true && playerAceIsEleven == true) {
+        playerCardTotal = changeAceValue(playerCardTotal);
+        console.log('Ace value changed to 1 for player.');
+        changeTurns(turn);
+      } else {
+        console.log('You lose!');
+        endGame();
+      }
     }
   } else {
     if (state=='win') {
       console.log('You lose!');
+      endGame();
     } else {
-      console.log('You win!');
+      // check if dealer has Ace
+      if (dealerHasAce == true && dealerAceIsEleven == true) {
+        dealerCardTotal = changeAceValue(dealerCardTotal);
+        console.log('Ace value changed to 1 for dealer.');
+        changeTurns(turn);
+      } else {
+        console.log('You win!');
+        endGame();
+      }
     }
   }
+}
+
+function endGame() {
+  $('#draw-btn').prop('disabled', true);
 }
 
 function init() {
