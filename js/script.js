@@ -1,12 +1,18 @@
 /*
   ! TO DO
-  1. Shuffle Deck
+  1. Shuffle Deck - DONE
   2. Player Actions
   3. Draw Animations
-  4. Card Creation
+  4. Card Creation - DONE
   5. Success/Fail Animation
   6. Restart
   7. Wagers?
+
+  * HOUSE RULES
+  Dealers stands on ALL 17s
+
+  * Blackjack Game Rules from 
+  @https://www.blackjackapprenticeship.com/how-to-play-blackjack/
 */
 
 // * Global Variables
@@ -29,6 +35,7 @@ let playerHasAce = false;
 let playerAceIsEleven = false;
 let turn = playerTurn;
 let tempCardVal;
+let holeCard;
 
 // * Create the Card Array
 function createCardArray() {
@@ -170,8 +177,48 @@ function drawCard() {
   
   sumCards()
 }
+function dealCard() {
+  const cardFace = createCardFace(deck[deckPos]);
+  deckPos += 1;
+  return cardFace;
+}
 
-// * Check Total
+// * Start Game Functions
+function dealPlayerHand() {
+  const cardFace = dealCard();
+  $('#hand').append(cardFace);
+  sumCards();
+}
+function dealDealerHand() {
+  const cardFace = dealCard();
+  $('#dealer').append(cardFace);
+}
+function dealFirstCards() {
+  dealPlayerHand();
+  setTimeout(() => {
+    dealPlayerHand();
+  }, 500);
+  setTimeout(() => {
+    turn = dealerTurn;
+    dealDealerHand();
+    sumCards();
+    setTimeout(() => {
+      dealDealerHand();
+      // ! Second card should be face down
+      if (tempCardVal == 1) {
+        tempCardVal = hasNewAce();
+      }
+      holeCard = tempCardVal; // store value of hole card
+      if (check21 == 'end') {
+        checkResult();
+      }
+      enableButtons();
+      turn = playerTurn;
+    }, 500);
+  }, 1000);
+}
+
+// // * Check Total
 function checkTotal(total) {
   if (total>21) {
     return 'lose';
@@ -181,6 +228,7 @@ function checkTotal(total) {
     return 'win'
   }
 }
+
 
 function hasNewAce() {
   let aceValue;
@@ -219,25 +267,44 @@ function checkAceValue(currentCardTotal) {
 
 // * Sum Cards
 function sumCards() {
-  let gameState;
+  // let gameState;
   if (tempCardVal == 1) {
     tempCardVal = hasNewAce();
   }
   if (turn == 'player') {
     playerCardTotal += tempCardVal;
     $('.player-count').text(playerCardTotal);
-    gameState = checkTotal(playerCardTotal);
+    // gameState = checkTotal(playerCardTotal);
   } else {
     dealerCardTotal += tempCardVal;
     $('.dealer-count').text(dealerCardTotal);
-    gameState = checkTotal(dealerCardTotal);
+    // gameState = checkTotal(dealerCardTotal);
   }
 
-  if (gameState == 'continue') {
-    changeTurns(turn);
+  // if (gameState != 'continue') {
+  //   changeTurns(turn);
+  // } else {
+  //   checkEndGame(gameState);
+  // }
+}
+
+// * Dealer's Turn
+function playDealer() {
+  tempCardVal = holeCard;
+  sumCards();
+  if (dealerCardTotal < 17) {
+    while (dealerCardTotal < 17) {
+      dealDealerHand();
+      sumCards();
+      if (dealerCardTotal > 16) {
+        checkResult();
+      }
+    }
   } else {
-    checkEndGame(gameState);
+    checkResult();
   }
+  // check total if > 17
+  // stand or deal until total > 17
 }
 
 // * Shuffle Deck
@@ -258,46 +325,134 @@ function shuffleDeck() {
   return deck;
 }
 
-function checkEndGame(state) {
-  if (turn=='player') {
-    if (state=='win') {
-      console.log('You win!');
+// * Enable Buttons
+function enableButtons () {
+  console.log('enable buttons');
+  $(".stand-btn").prop("disabled", false);
+  $("#hit-btn").prop("disabled", false);
+  $("#double-btn").prop("disabled", false);
+  $("#split-btn").prop("disabled", false);
+  $("#surrender-btn").prop("disabled", false);
+}
+// * Disable Buttons
+function disableButtons () {
+  $(".stand-btn").prop("disabled", true);
+  $("#hit-btn").prop("disabled", true);
+  $("#double-btn").prop("disabled", true);
+  $("#split-btn").prop("disabled", true);
+  $("#surrender-btn").prop("disabled", true);
+}
+// * Reset Board 
+function resetBoard() {
+  deckPos = 0;
+  playerCardTotal = 0;
+  dealerCardTotal = 0;
+  dealerHasAce = false;
+  dealerAceIsEleven = false;
+  playerHasAce = false;
+  playerAceIsEleven = false;
+  turn = playerTurn;
+  $('.player-count').text(playerCardTotal);
+  $('.dealer-count').text(dealerCardTotal);
+  $('#hand').html('');
+  $('#dealer').html('');
+}
+
+// * End of Game Checks and Functions
+// function checkEndGame(state) {
+//   if (turn=='player') {
+//     if (state=='win') {
+//       console.log('You win!');
+//       endGame();
+//     } else {
+//       // check if player has Ace that is counted as 11
+//       if (playerHasAce == true && playerAceIsEleven == true) {
+//         playerCardTotal = changeAceValue(playerCardTotal);
+//         console.log('Ace value changed to 1 for player.');
+//         changeTurns(turn);
+//       } else {
+//         console.log('You lose!');
+//         endGame();
+//       }
+//     }
+//   } else {
+//     if (state=='win') {
+//       console.log('You lose!');
+//       endGame();
+//     } else {
+//       // check if dealer has Ace
+//       if (dealerHasAce == true && dealerAceIsEleven == true) {
+//         dealerCardTotal = changeAceValue(dealerCardTotal);
+//         console.log('Ace value changed to 1 for dealer.');
+//         changeTurns(turn);
+//       } else {
+//         console.log('You win!');
+//         endGame();
+//       }
+//     }
+//   }
+// }
+function check21() {
+  if (playerCardTotal >= 21) {
+    return 'end';
+  } else {
+    return 'continue';
+  }
+}
+function checkResult() {
+  if (playerCardTotal == 21 || dealerCardTotal > 21) {
+    console.log('Player Wins!');
+    endGame();
+  } else if (playerCardTotal > 21) {
+    console.log('House wins!');
+    endGame();
+  } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
+    if (playerCardTotal > dealerCardTotal) {
+      console.log('Player Wins!');
+      endGame();
+    } else if (dealerCardTotal > playerCardTotal) {
+      console.log('House Wins!')
       endGame();
     } else {
-      // check if player has Ace that is counted as 11
-      if (playerHasAce == true && playerAceIsEleven == true) {
-        playerCardTotal = changeAceValue(playerCardTotal);
-        console.log('Ace value changed to 1 for player.');
-        changeTurns(turn);
-      } else {
-        console.log('You lose!');
-        endGame();
-      }
+      console.log('Push. End of Round.');
+      endGame();
     }
   } else {
-    if (state=='win') {
-      console.log('You lose!');
-      endGame();
-    } else {
-      // check if dealer has Ace
-      if (dealerHasAce == true && dealerAceIsEleven == true) {
-        dealerCardTotal = changeAceValue(dealerCardTotal);
-        console.log('Ace value changed to 1 for dealer.');
-        changeTurns(turn);
-      } else {
-        console.log('You win!');
-        endGame();
-      }
-    }
+    console.log('Unaccounted state');
   }
 }
 
 function endGame() {
-  $('#draw-btn').prop('disabled', true);
+  disableButtons();
 }
 
 function init() {
   createCardArray();
+
+  $("#new-game-btn").click(function() {
+    // clear deck & totals
+    resetBoard();
+    shuffleDeck();
+    setTimeout(() => {
+      dealFirstCards();
+    }, 400);
+    // check for 21s
+  });
+
+  $(".stand-btn").click(function() {
+    disableButtons();
+    turn = dealerTurn;
+    // Deal cards if total = 17 or higher
+    playDealer();
+  });
+
+  $('#hit-btn').click(function() {
+    dealPlayerHand();
+    let gameState = check21();
+    if (gameState=='end') {
+      checkResult();
+    }
+  });
 
   startBtn.addEventListener('click', () => {
     // Reset game board
