@@ -34,6 +34,33 @@ img {
   position: relative;
   background: white;
 }
+.card.hole {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  perspective: 200px;
+  -webkit-perspective: 200px;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+.card.hole.show {
+  transform: rotateY(360deg);
+  -webkit-transform: rotateY(360deg);
+  /* ! Change to keyframes animation */
+}
+
+.hole > * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.card-back {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  right: -1px;
+  bottom: 0;
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
 
 .identifier {
   display: flex;

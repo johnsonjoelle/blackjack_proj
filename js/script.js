@@ -26,6 +26,7 @@ const startBtn = document.getElementById('start-btn');
 let deckPos = 0;
 let playerCardTotal = 0;
 let dealerCardTotal = 0;
+let dealerCardCount = 0;
 const cardLimit = 21;
 const playerTurn = 'player';
 const dealerTurn = 'dealer';
@@ -128,6 +129,25 @@ function createCardFace(cardData) {
           <img class="type" src="img/${cardData.suite}.svg">
         </div>
       </article>`;
+    if (turn == dealerTurn && dealerCardCount == 2) {
+      cardFace = `
+        <article class="card hole" data-card="${cardData.num}" data-suite="${cardData.suite}" data-value="${num}">
+          <div class="identifier top">
+            <b class="key">${cardData.num}</b>
+            <img class="type" src="img/${cardData.suite}.svg">
+          </div>
+          <div class="identifier center">
+            ${centerContent}
+          </div>
+          <div class="identifier bottom">
+            <b class="key">${cardData.num}</b>
+            <img class="type" src="img/${cardData.suite}.svg">
+          </div>
+          <div class="card-back">
+            <img src="img/card-back.svg">
+          </div>
+        </article>`;
+      }
   } else {
     num = 1;
     if (!isNaN(cardData.num)) {
@@ -150,6 +170,25 @@ function createCardFace(cardData) {
           <img class="type hidden" src="img/${cardData.suite}.svg">
         </div>
       </article>`;
+    if (turn == dealerTurn && dealerCardCount == 2) {
+      cardFace = `
+        <article class="card hole" data-card="${cardData.num}" data-suite="${cardData.suite}" data-value="${num}">
+          <div class="identifier top">
+            <b class="key">${cardData.num}</b>
+            <img class="type hidden" src="img/${cardData.suite}.svg">
+          </div>
+          <div class="identifier center">
+            ${centerContent}
+          </div>
+          <div class="identifier bottom">
+            <b class="key">${cardData.num}</b>
+            <img class="type hidden" src="img/${cardData.suite}.svg">
+          </div>
+          <div class="card-back">
+            <img src="img/card-back.svg">
+          </div>
+        </article>`;
+      }
   }
   tempCardVal = num;
   return cardFace;
@@ -166,17 +205,6 @@ function changeTurns(currentTurn) {
 }
 
 // * Draw A Card
-function drawCard() {
-  const cardFace = createCardFace(deck[deckPos]);
-  deckPos += 1;
-  if (turn == 'player') {
-    $('#hand').append(cardFace);
-  } else {
-    $('#dealer').append(cardFace);
-  }
-  
-  sumCards()
-}
 function dealCard() {
   const cardFace = createCardFace(deck[deckPos]);
   deckPos += 1;
@@ -190,6 +218,7 @@ function dealPlayerHand() {
   sumCards();
 }
 function dealDealerHand() {
+  dealerCardCount += 1;
   const cardFace = dealCard();
   $('#dealer').append(cardFace);
 }
@@ -204,21 +233,22 @@ function dealFirstCards() {
     sumCards();
     setTimeout(() => {
       dealDealerHand();
-      // ! Second card should be face down
       if (tempCardVal == 1) {
         tempCardVal = hasNewAce();
       }
       holeCard = tempCardVal; // store value of hole card
-      if (check21 == 'end') {
+      let checkPlayer21 = check21();
+      if (checkPlayer21 == 'end') {
         checkResult();
+      } else {
+        enableButtons();
+        turn = playerTurn;
       }
-      enableButtons();
-      turn = playerTurn;
     }, 500);
   }, 1000);
 }
 
-// // * Check Total
+// * Check Total
 function checkTotal(total) {
   if (total>21) {
     return 'lose';
@@ -274,32 +304,35 @@ function sumCards() {
   if (turn == 'player') {
     playerCardTotal += tempCardVal;
     $('.player-count').text(playerCardTotal);
-    // gameState = checkTotal(playerCardTotal);
   } else {
     dealerCardTotal += tempCardVal;
     $('.dealer-count').text(dealerCardTotal);
-    // gameState = checkTotal(dealerCardTotal);
   }
-
-  // if (gameState != 'continue') {
-  //   changeTurns(turn);
-  // } else {
-  //   checkEndGame(gameState);
-  // }
 }
 
 // * Dealer's Turn
 function playDealer() {
+  $('.hole').addClass('show');
   tempCardVal = holeCard;
   sumCards();
   if (dealerCardTotal < 17) {
-    while (dealerCardTotal < 17) {
+    let delay = 500;
+    let cardTiming = setInterval(() => {
       dealDealerHand();
       sumCards();
       if (dealerCardTotal > 16) {
+        clearInterval(cardTiming);
         checkResult();
       }
-    }
+      delay += 500;
+    }, delay);
+    // while (dealerCardTotal < 17) {
+    //   dealDealerHand();
+    //   sumCards();
+    //   if (dealerCardTotal > 16) {
+    //     checkResult();
+    //   }
+    // }
   } else {
     checkResult();
   }
@@ -327,12 +360,13 @@ function shuffleDeck() {
 
 // * Enable Buttons
 function enableButtons () {
-  console.log('enable buttons');
   $(".stand-btn").prop("disabled", false);
   $("#hit-btn").prop("disabled", false);
   $("#double-btn").prop("disabled", false);
-  $("#split-btn").prop("disabled", false);
   $("#surrender-btn").prop("disabled", false);
+}
+function enableSplit () {
+  $("#split-btn").prop("disabled", false);
 }
 // * Disable Buttons
 function disableButtons () {
@@ -342,11 +376,15 @@ function disableButtons () {
   $("#split-btn").prop("disabled", true);
   $("#surrender-btn").prop("disabled", true);
 }
+function disableSplit () {
+  $("#split-btn").prop("disabled", true);
+}
 // * Reset Board 
 function resetBoard() {
   deckPos = 0;
   playerCardTotal = 0;
   dealerCardTotal = 0;
+  dealerCardCount = 0;
   dealerHasAce = false;
   dealerAceIsEleven = false;
   playerHasAce = false;
@@ -417,6 +455,8 @@ function checkResult() {
       console.log('Push. End of Round.');
       endGame();
     }
+  } else if (dealerCardTotal == 21) {
+    console.log('House Wins!');
   } else {
     console.log('Unaccounted state');
   }
@@ -454,17 +494,22 @@ function init() {
     }
   });
 
-  startBtn.addEventListener('click', () => {
-    // Reset game board
-    // Shuffle deck
-    // Unlock other buttons
-    shuffleDeck();
-    // console.log(deck);
+  $("#surrender-btn").click(function() {
+    console.log('Player surrenders. House wins!');
+    endGame();
   });
 
-  drawBtn.addEventListener('click', () => {
-    drawCard();
-  });
+  // startBtn.addEventListener('click', () => {
+  //   // Reset game board
+  //   // Shuffle deck
+  //   // Unlock other buttons
+  //   shuffleDeck();
+  //   // console.log(deck);
+  // });
+
+  // drawBtn.addEventListener('click', () => {
+  //   drawCard();
+  // });
 }
 
 document.body.onload = () => {
