@@ -1,13 +1,31 @@
 *, ::before, ::after {
   box-sizing: border-box;
 }
+* {
+  margin: 0;
+  padding: 0;
+}
 :root {
   font-family: 'Miriam Libre', serif;
   font-size: 1vh;
+  --green: #33e854; /* rgb(51, 232, 84) */
 }
 
+/* Layout */
+/* Mobile - default */
+body {
+  width: 100%;
+  /* background-color: blue; */
+}
+main {
+  border: 4px solid black;
+  max-width: 460px;
+  margin-left: auto;
+  margin-right: auto;
+  /* padding: 0 15px; */
+}
 section {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   padding: 20px 10px;
 }
 
@@ -16,19 +34,85 @@ img {
   height: auto;
 }
 
+/* Header */
+header {
+  margin-left: 15px;
+}
+h1 {
+  font-size: 3rem;
+  padding: 10px 0 5px;
+}
+.header-border {
+  /* width: 100%; */
+  height: 5px;
+  background-color: pink;
+}
+.deco1 {
+  background-color: black;
+  margin-left: 70px;
+  height: 8px;
+  position: relative;
+  z-index: 1;
+}
+.deco2 {
+  background-color: rgba(51, 232, 84, .6);
+  margin-left: 20px;
+  margin-top: -2px;
+}
+
+/* Card Trays */
+.card-tray {
+  display: flex;
+  align-items: center;
+}
+h2 {
+  writing-mode: vertical-lr;
+  font-size: 2.5rem;
+}
 #dealer,
 #hand {
   display: flex;
   flex-wrap: wrap;
+  margin-left: 10px;
 }
 
+/* Score Section */
+#totals-divider {
+  background-color: var(--green);
+  height: 4px;
+  margin: 10px 0;
+}
+
+/* Controls */
+#controls {
+  padding: 0;
+  background-color: var(--green);
+}
+#controls > div {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.controls-white {
+  background-color: white;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  display: flex;
+  justify-content: end;
+}
+.controls-green {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Cards */
 .card:not(:first-child) {
   margin-left: -10em;
 }
 
 .card {
   border: 2px solid black;
-  border-radius: .49em;
+  /* border-radius: .49em; */
+  border-radius: .85em;
   width: 16.875em;
   height: 25.625em;
   position: relative;

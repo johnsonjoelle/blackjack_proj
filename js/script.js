@@ -2,6 +2,11 @@
   ! TO DO
   1. Shuffle Deck - DONE
   2. Player Actions
+    2a. Stand - DONE
+    2b. Hit - DONE
+    2c. Double Down
+    2d. Split
+    2e. Surrender - DONE
   3. Draw Animations
   4. Card Creation - DONE
   5. Success/Fail Animation
@@ -297,7 +302,6 @@ function checkAceValue(currentCardTotal) {
 
 // * Sum Cards
 function sumCards() {
-  // let gameState;
   if (tempCardVal == 1) {
     tempCardVal = hasNewAce();
   }
@@ -336,8 +340,6 @@ function playDealer() {
   } else {
     checkResult();
   }
-  // check total if > 17
-  // stand or deal until total > 17
 }
 
 // * Shuffle Deck
@@ -441,7 +443,7 @@ function checkResult() {
   if (playerCardTotal == 21 || dealerCardTotal > 21) {
     console.log('Player Wins!');
     endGame();
-  } else if (playerCardTotal > 21) {
+  } else if (playerCardTotal > 21 || dealerCardTotal == 21) {
     console.log('House wins!');
     endGame();
   } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
@@ -455,8 +457,6 @@ function checkResult() {
       console.log('Push. End of Round.');
       endGame();
     }
-  } else if (dealerCardTotal == 21) {
-    console.log('House Wins!');
   } else {
     console.log('Unaccounted state');
   }
