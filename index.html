@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://kit.fontawesome.com/4c412adfbd.js" crossorigin="anonymous"></script>
   <title>Blackjack</title>
 </head>
 <body>
@@ -23,13 +24,11 @@
     <section id="table">
       <div class="totals">
         <div class="dealer-total">
-          <p class="total-label">Dealer Total</p>
-          <p class="dealer-count">0</p>
+          <p class="total-label">Dealer Total: <span class="dealer-count">0</span></p>
         </div>
         <div id="totals-divider"></div>
         <div class="player-total">
-          <p class="total-label">Player Total</p>
-          <p class="player-count">0</p>
+          <p class="total-label">Player Total: <span class="player-count">0</span></p>
         </div>
       </div>
     </section>
@@ -46,12 +45,50 @@
         <button id="new-game-btn">New Game</button>
       </div>
       <div class="controls-green">
-        <button class="stand-btn" disabled>Stand</button>
+        <!-- <button id="stand-btn" disabled>Stand</button>
         <button id="hit-btn" disabled>Hit</button>
         <button id="double-btn" disabled>Double Down</button>
         <button id="split-btn" disabled>Split</button>
-        <button id="surrender-btn" disabled>Surrender</button>
+        <button id="surrender-btn" disabled>Surrender</button> -->
+        <div class="control-btn disabled" id="stand-btn">
+          <i class="fa-regular fa-hand"></i>
+          <p>Stand</p>
+        </div>
+        <div class="control-btn disabled" id="hit-btn">
+          <i class="fa-regular fa-hand-point-up"></i>
+          <p>Hit</p>
+        </div>
+        <div class="control-btn disabled" id="double-btn">
+          <i class="fa-solid fa-dollar-sign"></i>
+          <p>Double Down</p>
+        </div>
+        <div class="control-btn disabled" id="split-btn">
+          <i class="fa-regular fa-hand-peace"></i>
+          <p>Split</p>
+        </div>
+        <div class="control-btn disabled" id="surrender-btn">
+          <i class="fa-regular fa-hand-point-down"></i>
+          <p>Surrender</p>
+        </div>
       </div>
+    </section>
+
+    <section id="results" class="modal">
+      <p id="winner" class="modal-header">House Wins!</p>
+    </section>
+
+    <section id="wager" class="modal">
+      <p class="modal-header">Select your Wager</p>
+      <div class="wagers">
+        <div class="wager-btn"><p>$10</p></div>
+        <div class="wager-btn"><p>$20</p></div>
+        <div class="wager-btn"><p>$50</p></div>
+        <div class="wager-btn"><p>$100</p></div>
+      </div>
+    </section>
+
+    <section id="confirmation" class="modal">
+      <p class="confirm-msg">Are you sure you want to dd/surrender?</p>
     </section>
   </main>
 

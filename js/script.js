@@ -362,21 +362,21 @@ function shuffleDeck() {
 
 // * Enable Buttons
 function enableButtons () {
-  $(".stand-btn").prop("disabled", false);
-  $("#hit-btn").prop("disabled", false);
-  $("#double-btn").prop("disabled", false);
-  $("#surrender-btn").prop("disabled", false);
+  $("#stand-btn").removeClass("disabled");
+  $("#hit-btn").removeClass("disabled");
+  $("#double-btn").removeClass("disabled");
+  $("#surrender-btn").removeClass("disabled");
 }
 function enableSplit () {
-  $("#split-btn").prop("disabled", false);
+  $("#split-btn").removeClass("disabled");
 }
 // * Disable Buttons
 function disableButtons () {
-  $(".stand-btn").prop("disabled", true);
-  $("#hit-btn").prop("disabled", true);
-  $("#double-btn").prop("disabled", true);
-  $("#split-btn").prop("disabled", true);
-  $("#surrender-btn").prop("disabled", true);
+  $("#stand-btn").addClass("disabled");
+  $("#hit-btn").addClass("disabled");
+  $("#double-btn").addClass("disabled");
+  $("#split-btn").addClass("disabled");
+  $("#surrender-btn").addClass("disabled");
 }
 function disableSplit () {
   $("#split-btn").prop("disabled", true);
@@ -479,24 +479,30 @@ function init() {
     // check for 21s
   });
 
-  $(".stand-btn").click(function() {
-    disableButtons();
-    turn = dealerTurn;
-    // Deal cards if total = 17 or higher
-    playDealer();
+  $("#stand-btn").click(function() {
+    if (!$("#stand-btn").hasClass('disabled')) {
+      disableButtons();
+      turn = dealerTurn;
+      // Deal cards if total = 17 or higher
+      playDealer();
+    }
   });
 
   $('#hit-btn').click(function() {
-    dealPlayerHand();
-    let gameState = check21();
-    if (gameState=='end') {
-      checkResult();
+    if (!$('#hit-btn').hasClass('disabled')) {
+      dealPlayerHand();
+      let gameState = check21();
+      if (gameState=='end') {
+        checkResult();
+      }
     }
   });
 
   $("#surrender-btn").click(function() {
-    console.log('Player surrenders. House wins!');
-    endGame();
+    if (!$("#surrender-btn").hasClass('disabled')) {
+      console.log('Player surrenders. House wins!');
+      endGame();
+    }
   });
 
   // startBtn.addEventListener('click', () => {
