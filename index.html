@@ -29,6 +29,7 @@
         <div id="totals-divider"></div>
         <div class="player-total">
           <p class="total-label">Player Total: <span class="player-count">0</span></p>
+          <p>Current Wager: $<span class='current-wager'>0</span></p>
         </div>
       </div>
     </section>
@@ -42,6 +43,7 @@
       <!-- <button id="draw-btn">Draw Card</button>
       <button id="start-btn">Shuffle Deck</button> -->
       <div class="controls-white">
+        <p>Your Funds: <b>$</b><span class="funds"></span></p>
         <button id="new-game-btn">New Game</button>
       </div>
       <div class="controls-green">
@@ -78,17 +80,21 @@
     </section>
 
     <section id="wager" class="modal">
-      <p class="modal-header">Select your Wager</p>
+      <p class="modal-header wager-text">Select your Wager</p>
       <div class="wagers">
-        <div class="wager-btn"><p>$10</p></div>
-        <div class="wager-btn"><p>$20</p></div>
-        <div class="wager-btn"><p>$50</p></div>
-        <div class="wager-btn"><p>$100</p></div>
+        <div class="wager-btn" data-id="10"><p>$10</p></div>
+        <div class="wager-btn" data-id="20"><p>$20</p></div>
+        <div class="wager-btn" data-id="50"><p>$50</p></div>
+        <div class="wager-btn" data-id="100"><p>$100</p></div>
       </div>
     </section>
 
     <section id="confirmation" class="modal">
       <p class="confirm-msg">Are you sure you want to dd/surrender?</p>
+      <div class="confirm-btns">
+        <button class="confirm-btn" id="yes" data-id="yes">Confirm</button>
+        <button class="confirm-btn" id="no" data-id="no">Cancel</button>
+      </div>
     </section>
   </main>
 

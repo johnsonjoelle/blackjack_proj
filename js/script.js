@@ -42,6 +42,10 @@ let playerAceIsEleven = false;
 let turn = playerTurn;
 let tempCardVal;
 let holeCard;
+const startingFunds = 300;
+let currentFunds = startingFunds;
+let currentWager = 0;
+let surrender = false;
 
 // * Create the Card Array
 function createCardArray() {
@@ -217,6 +221,38 @@ function dealCard() {
 }
 
 // * Start Game Functions
+function checkFunds() {
+  if (currentFunds<100) {
+    $(".wagers").children('[data-id="100"]').addClass('disabled');
+  }
+  if (currentFunds<50) {
+    $(".wagers").children('[data-id="50"]').addClass('disabled');
+  }
+  if (currentFunds<20) {
+    $(".wagers").children('[data-id="20"]').addClass('disabled');
+  }
+  if (currentFunds<10) {
+    $(".wager-btn").hide();
+    $('.wager-text').text('Sorry, but you do not have enough funds to keep playing. To start over, please refresh the page.');
+  }
+}
+function chooseWager() {
+  checkFunds();
+  $('#wager').show();
+}
+function setWager(wager) {
+  currentWager = wager;
+  currentFunds = currentFunds - currentWager;
+  $('#wager').hide();
+  setTimeout(() => {
+    dealFirstCards();
+  }, 400);
+  printWager();
+  printFunds();
+}
+function printWager() {
+  $('.current-wager').text(currentWager);
+}
 function dealPlayerHand() {
   const cardFace = dealCard();
   $('#hand').append(cardFace);
@@ -300,6 +336,34 @@ function checkAceValue(currentCardTotal) {
   }
 }
 
+// * Double Wager
+function confirmDouble() {
+  if (currentFunds>=currentWager) {
+    $('.confirm-msg').text('Are you sure you want to double your bet?');
+  } else {
+    $('.confirm-msg').text('You do not have enough to double your bet. Do you wish to go all in with your remaining funds?');
+  }
+  $('#confirmation').show();
+}
+function doubleDown(confirm) {
+  if (confirm=='yes') {
+    if (currentFunds>=currentWager) {
+      currentWager = currentWager*2;
+    } else {
+      currentWager = currentWager + currentFunds;
+    }
+    printWager();
+    setTimeout(() => {
+      dealPlayerHand();
+      turn = dealerTurn;
+      setTimeout(() => {
+        playDealer();
+      }, 500);
+    }, 500);
+  }
+  $('#confirmation').hide();
+}
+
 // * Sum Cards
 function sumCards() {
   if (tempCardVal == 1) {
@@ -342,6 +406,24 @@ function playDealer() {
   }
 }
 
+// * Set Winnings
+function setWinnings(result) {
+  let earnings = 0;
+  if (result=='win') {
+    earnings = currentWager*2;
+    currentFunds = currentFunds + earnings;
+  } else if (result=='push') {
+    earnings = currentWager;
+    currentFunds = currentFunds + earnings;
+  } else if (result=='surrender') {
+    earnings = currentWager/2;
+    currentFunds = currentFunds + earnings;
+  } else {
+    console.log('Player lost. No earnings on match.');
+  }
+  printFunds();
+}
+
 // * Shuffle Deck
 function shuffleDeck() {
   deck = [...cards];
@@ -364,7 +446,9 @@ function shuffleDeck() {
 function enableButtons () {
   $("#stand-btn").removeClass("disabled");
   $("#hit-btn").removeClass("disabled");
-  $("#double-btn").removeClass("disabled");
+  if (currentFunds>0) {
+    $("#double-btn").removeClass("disabled");
+  }
   $("#surrender-btn").removeClass("disabled");
 }
 function enableSplit () {
@@ -392,10 +476,13 @@ function resetBoard() {
   playerHasAce = false;
   playerAceIsEleven = false;
   turn = playerTurn;
+  currentWager = 0;
+  surrender = false;
   $('.player-count').text(playerCardTotal);
   $('.dealer-count').text(dealerCardTotal);
   $('#hand').html('');
   $('#dealer').html('');
+  // ! Add a check to see if the player is out of funds
 }
 
 // * End of Game Checks and Functions
@@ -425,7 +512,7 @@ function resetBoard() {
 //         dealerCardTotal = changeAceValue(dealerCardTotal);
 //         console.log('Ace value changed to 1 for dealer.');
 //         changeTurns(turn);
-//       } else {
+//     check21  } else {
 //         console.log('You win!');
 //         endGame();
 //       }
@@ -440,26 +527,40 @@ function check21() {
   }
 }
 function checkResult() {
+  let result;
   if (playerCardTotal == 21 || dealerCardTotal > 21) {
     console.log('Player Wins!');
+    result='win';
     endGame();
   } else if (playerCardTotal > 21 || dealerCardTotal == 21) {
     console.log('House wins!');
+    result='loss';
     endGame();
   } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
     if (playerCardTotal > dealerCardTotal) {
       console.log('Player Wins!');
+      result='win';
       endGame();
     } else if (dealerCardTotal > playerCardTotal) {
       console.log('House Wins!')
+      result='loss';
       endGame();
     } else {
       console.log('Push. End of Round.');
+      result='push';
       endGame();
     }
   } else {
     console.log('Unaccounted state');
   }
+  if (surrender == true) {
+    result='surrender';
+  }
+  setWinnings(result);
+}
+
+function printFunds() {
+  $('.funds').text(currentFunds);
 }
 
 function endGame() {
@@ -468,15 +569,18 @@ function endGame() {
 
 function init() {
   createCardArray();
+  printFunds();
 
   $("#new-game-btn").click(function() {
     // clear deck & totals
     resetBoard();
     shuffleDeck();
-    setTimeout(() => {
-      dealFirstCards();
-    }, 400);
-    // check for 21s
+    chooseWager();
+  });
+
+  $(document).on('click', 'body .wager-btn', function() {
+    let val = $(this).data('id');
+    setWager(val);
   });
 
   $("#stand-btn").click(function() {
@@ -496,6 +600,17 @@ function init() {
         checkResult();
       }
     }
+  });
+
+  $('#double-btn').click(function() {
+    if (!$("#double-btn").hasClass('disabled')) {
+      confirmDouble();
+    }
+  });
+
+  $(document).on('click', 'body .confirm-btn', function() {
+    let val = $(this).data('id');
+    doubleDown(val);
   });
 
   $("#surrender-btn").click(function() {
