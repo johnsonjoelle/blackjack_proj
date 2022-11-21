@@ -4,17 +4,17 @@
   2. Player Actions
     2a. Stand - DONE
     2b. Hit - DONE
-    2c. Double Down
+    2c. Double Down - DONE
     2d. Split
     2e. Surrender - DONE
   3. Draw Animations
   4. Card Creation - DONE
   5. Success/Fail Animation
-  6. Restart
-  7. Wagers?
+  6. Restart - DONE
+  7. Wagers - DONE
 
   * HOUSE RULES
-  Dealers stands on ALL 17s
+  Dealer stands on ALL 17s
 
   * Blackjack Game Rules from 
   @https://www.blackjackapprenticeship.com/how-to-play-blackjack/
