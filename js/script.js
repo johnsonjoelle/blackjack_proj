@@ -348,11 +348,13 @@ function confirmDouble() {
 function doubleDown(confirm) {
   if (confirm=='yes') {
     if (currentFunds>=currentWager) {
+      currentFunds = currentFunds - currentWager;
       currentWager = currentWager*2;
     } else {
       currentWager = currentWager + currentFunds;
     }
     printWager();
+    printFunds();
     setTimeout(() => {
       dealPlayerHand();
       turn = dealerTurn;
@@ -418,8 +420,12 @@ function setWinnings(result) {
   } else if (result=='surrender') {
     earnings = currentWager/2;
     currentFunds = currentFunds + earnings;
-  } else {
+  } else if (result=='loss') {
     console.log('Player lost. No earnings on match.');
+  } else {
+    // Error
+    earnings = currentWager;
+    currentFunds = currentFunds + earnings;
   }
   printFunds();
 }
@@ -482,6 +488,7 @@ function resetBoard() {
   $('.dealer-count').text(dealerCardTotal);
   $('#hand').html('');
   $('#dealer').html('');
+  $('.modal').hide();
   // ! Add a check to see if the player is out of funds
 }
 
@@ -557,9 +564,11 @@ function checkResult() {
       }
     } else {
       console.log('Unaccounted state');
+      result='error';
     }
   }
   setWinnings(result);
+  endMsg(result);
 }
 
 function printFunds() {
@@ -570,11 +579,35 @@ function endGame() {
   disableButtons();
 }
 
+function endMsg(result) {
+  let winner;
+  let msg;
+  if (result=='win') {
+    winner = 'Congratulations! You won the round!';
+    msg = `You won $${currentWager}. Your wager has been returned in addition to your winnings.`
+  } else if (result=='push') {
+    winner = 'Round is a Push!';
+    msg = `You and the dealer have the same total. Your wager has been returned. There is no additional payout.`
+  } else if (result=='surrender') {
+    winner = 'You Surrendered!';
+    msg = `Half of your wager has been returned.`
+  } else if (result == 'loss') {
+    winner = 'House Wins!';
+    msg = `You lost $${currentWager}.`
+  } else {
+    winner = 'Seems we have encountered a problem';
+    msg = `Your wager of $${currentWager} has been returned.`
+  }
+  $('#winner').text(winner);
+  $('#result-msg').text(msg);
+  $('#results').show();
+}
+
 function init() {
   createCardArray();
   printFunds();
 
-  $("#new-game-btn").click(function() {
+  $(".new-game-btn").click(function() {
     // clear deck & totals
     resetBoard();
     shuffleDeck();
@@ -621,6 +654,10 @@ function init() {
       surrender = true;
       checkResult();
     }
+  });
+
+  $('.close-result').click(function() {
+    $('#results').hide();
   });
 
   // startBtn.addEventListener('click', () => {

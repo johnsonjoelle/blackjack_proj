@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
   <script src="https://kit.fontawesome.com/4c412adfbd.js" crossorigin="anonymous"></script>
   <title>Blackjack</title>
 </head>
@@ -34,7 +35,7 @@
       </div>
     </section>
 
-    <section class="card-tray">
+    <section class="card-tray bottom-tray">
       <h2>Player</h2>
       <div id="hand"></div>
     </section>
@@ -44,7 +45,7 @@
       <button id="start-btn">Shuffle Deck</button> -->
       <div class="controls-white">
         <p>Your Funds: <b>$</b><span class="funds"></span></p>
-        <button id="new-game-btn">New Game</button>
+        <button class="new-game-btn">Play</button>
       </div>
       <div class="controls-green">
         <!-- <button id="stand-btn" disabled>Stand</button>
@@ -76,7 +77,12 @@
     </section>
 
     <section id="results" class="modal">
-      <p id="winner" class="modal-header">House Wins!</p>
+      <p id="winner" class="modal-header"></p>
+      <p id="result-msg"></p>
+      <div class="result-btns">
+        <button class="result-btn close-result">Close</button>
+        <button class="result-btn new-game-btn">Play Again</button>
+      </div>
     </section>
 
     <section id="wager" class="modal">
