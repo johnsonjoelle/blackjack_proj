@@ -528,33 +528,36 @@ function check21() {
 }
 function checkResult() {
   let result;
-  if (playerCardTotal == 21 || dealerCardTotal > 21) {
-    console.log('Player Wins!');
-    result='win';
-    endGame();
-  } else if (playerCardTotal > 21 || dealerCardTotal == 21) {
-    console.log('House wins!');
-    result='loss';
-    endGame();
-  } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
-    if (playerCardTotal > dealerCardTotal) {
+  
+  if (surrender == true) {
+    result='surrender';
+    console.log('Player surrenders. House wins!');
+  } else {
+    if (playerCardTotal == 21 || dealerCardTotal > 21) {
       console.log('Player Wins!');
       result='win';
       endGame();
-    } else if (dealerCardTotal > playerCardTotal) {
-      console.log('House Wins!')
+    } else if (playerCardTotal > 21 || dealerCardTotal == 21) {
+      console.log('House wins!');
       result='loss';
       endGame();
+    } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
+      if (playerCardTotal > dealerCardTotal) {
+        console.log('Player Wins!');
+        result='win';
+        endGame();
+      } else if (dealerCardTotal > playerCardTotal) {
+        console.log('House Wins!')
+        result='loss';
+        endGame();
+      } else {
+        console.log('Push. End of Round.');
+        result='push';
+        endGame();
+      }
     } else {
-      console.log('Push. End of Round.');
-      result='push';
-      endGame();
+      console.log('Unaccounted state');
     }
-  } else {
-    console.log('Unaccounted state');
-  }
-  if (surrender == true) {
-    result='surrender';
   }
   setWinnings(result);
 }
@@ -615,8 +618,8 @@ function init() {
 
   $("#surrender-btn").click(function() {
     if (!$("#surrender-btn").hasClass('disabled')) {
-      console.log('Player surrenders. House wins!');
-      endGame();
+      surrender = true;
+      checkResult();
     }
   });
 

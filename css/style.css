@@ -7,7 +7,7 @@
 }
 :root {
   font-family: 'Miriam Libre', serif;
-  font-size: 1vh;
+  font-size: 8px;
   --green: #33e854; /* rgb(51, 232, 84) */
 }
 
@@ -76,6 +76,7 @@ h2 {
 #dealer,
 #hand {
   display: flex;
+  width: 100%;
   /* flex-wrap: wrap; */
   margin-left: 10px;
   overflow-x: auto;
@@ -235,8 +236,10 @@ h2 {
   border: 2px solid black;
   /* border-radius: .49em; */
   border-radius: .85em;
-  width: 16.875em;
-  height: 25.625em;
+  /* width: 16.875em;
+  height: 25.625em; */
+  max-width: 16.875em;
+  aspect-ratio: 16.875 / 25.625;
   position: relative;
   background: white;
   flex-shrink: 0;
