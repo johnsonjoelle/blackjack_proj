@@ -280,6 +280,10 @@ function dealFirstCards() {
       holeCard = tempCardVal; // store value of hole card
       let checkPlayer21 = check21();
       if (checkPlayer21 == 'end') {
+        // Check if dealer also has 21
+        $('.hole').addClass('show');
+        tempCardVal = holeCard;
+        sumCards();
         checkResult();
       } else {
         enableButtons();
@@ -303,20 +307,24 @@ function checkTotal(total) {
 
 function hasNewAce() {
   let aceValue;
-  if (turn=='player') {
+  if (turn==playerTurn) {
     if (playerHasAce == true) {
+      console.log('Player has Ace, new Ace is 1.');
       return 1;
     } else {
       playerHasAce = true;
       aceValue = checkAceValue(playerCardTotal);
+      console.log('Player first Ace, new Ace is ' + aceValue + '.');
       return aceValue;
     }
   } else {
     if (dealerHasAce == true) {
+      console.log('Dealer has Ace, new Ace is 1.');
       return 1;
     } else {
       dealerHasAce = true;
       aceValue = checkAceValue(dealerCardTotal);
+      console.log('Dealer first Ace, new Ace is ' + aceValue + '.');
       return aceValue;
     }
   }
@@ -324,6 +332,11 @@ function hasNewAce() {
 
 function changeAceValue(currentCardTotal) {
   let newCardTotal = currentCardTotal - 10;
+  if (turn == playerTurn) {
+    playerAceIsEleven = false;
+  } else {
+    dealerAceIsEleven = false;
+  }
   return newCardTotal;
 }
 
@@ -332,6 +345,11 @@ function checkAceValue(currentCardTotal) {
   if (elevenTotal > 21) {
     return 1;
   } else {
+    if (turn == dealerTurn) {
+      dealerAceIsEleven = true;
+    } else {
+      playerAceIsEleven = true;
+    }
     return 11;
   }
 }
@@ -373,9 +391,15 @@ function sumCards() {
   }
   if (turn == 'player') {
     playerCardTotal += tempCardVal;
+    if (playerCardTotal>21 && playerAceIsEleven) {
+      playerCardTotal = changeAceValue(playerCardTotal); 
+    }
     $('.player-count').text(playerCardTotal);
   } else {
     dealerCardTotal += tempCardVal;
+    if (dealerCardTotal>21 && dealerAceIsEleven) {
+      dealerCardTotal = changeAceValue(dealerCardTotal); 
+    }
     $('.dealer-count').text(dealerCardTotal);
   }
 }
@@ -396,13 +420,6 @@ function playDealer() {
       }
       delay += 500;
     }, delay);
-    // while (dealerCardTotal < 17) {
-    //   dealDealerHand();
-    //   sumCards();
-    //   if (dealerCardTotal > 16) {
-    //     checkResult();
-    //   }
-    // }
   } else {
     checkResult();
   }
@@ -411,7 +428,10 @@ function playDealer() {
 // * Set Winnings
 function setWinnings(result) {
   let earnings = 0;
-  if (result=='win') {
+  if (result=='blackjack') {
+    earnings = currentWager * 2.5;
+    currentFunds = currentFunds + earnings;
+  } else if (result=='win') {
     earnings = currentWager*2;
     currentFunds = currentFunds + earnings;
   } else if (result=='push') {
@@ -489,43 +509,9 @@ function resetBoard() {
   $('#hand').html('');
   $('#dealer').html('');
   $('.modal').hide();
-  // ! Add a check to see if the player is out of funds
 }
 
 // * End of Game Checks and Functions
-// function checkEndGame(state) {
-//   if (turn=='player') {
-//     if (state=='win') {
-//       console.log('You win!');
-//       endGame();
-//     } else {
-//       // check if player has Ace that is counted as 11
-//       if (playerHasAce == true && playerAceIsEleven == true) {
-//         playerCardTotal = changeAceValue(playerCardTotal);
-//         console.log('Ace value changed to 1 for player.');
-//         changeTurns(turn);
-//       } else {
-//         console.log('You lose!');
-//         endGame();
-//       }
-//     }
-//   } else {
-//     if (state=='win') {
-//       console.log('You lose!');
-//       endGame();
-//     } else {
-//       // check if dealer has Ace
-//       if (dealerHasAce == true && dealerAceIsEleven == true) {
-//         dealerCardTotal = changeAceValue(dealerCardTotal);
-//         console.log('Ace value changed to 1 for dealer.');
-//         changeTurns(turn);
-//     check21  } else {
-//         console.log('You win!');
-//         endGame();
-//       }
-//     }
-//   }
-// }
 function check21() {
   if (playerCardTotal >= 21) {
     return 'end';
@@ -540,11 +526,23 @@ function checkResult() {
     result='surrender';
     console.log('Player surrenders. House wins!');
   } else {
-    if (playerCardTotal == 21 || dealerCardTotal > 21) {
+    if (playerCardTotal == 21 && dealerCardTotal == 21) {
+      console.log('Push. End of Round.');
+      result='push';
+      endGame();
+    } else if (playerCardTotal == 21 && dealerCardTotal !=21) {
+      console.log('Player Wins!');
+      result='blackjack';
+      endGame();
+    } else if (dealerCardTotal > 21) {
       console.log('Player Wins!');
       result='win';
       endGame();
-    } else if (playerCardTotal > 21 || dealerCardTotal == 21) {
+    } else if (playerCardTotal > 21) {
+      console.log('House wins!');
+      result='loss';
+      endGame();
+    } else if (playerCardTotal < 21 && dealerCardTotal == 21) {
       console.log('House wins!');
       result='loss';
       endGame();
@@ -582,7 +580,10 @@ function endGame() {
 function endMsg(result) {
   let winner;
   let msg;
-  if (result=='win') {
+  if (result=='blackjack') {
+    winner = 'Blackjack!';
+    msg = `You won 150% on your wager of $${currentWager}. Your wager has been returned in addition to your winnings.`
+  } else if (result=='win') {
     winner = 'Congratulations! You won the round!';
     msg = `You won $${currentWager}. Your wager has been returned in addition to your winnings.`
   } else if (result=='push') {
