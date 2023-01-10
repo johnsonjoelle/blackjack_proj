@@ -74,12 +74,44 @@ h2 {
   font-size: 2.5rem;
 }
 #dealer,
-#hand {
+.hand-inner {
+/* #hand { */
   display: flex;
   width: 100%;
   /* flex-wrap: wrap; */
   margin-left: 10px;
   overflow: auto hidden;
+}
+#hand {
+  display: grid;
+  width: 100%;
+  grid-template-rows: 1fr;
+  grid-template-columns: repeat(5, 1fr);
+  overflow-x: hidden;
+}
+.hand-top {
+  grid-column: 1/-1;
+}
+.hand-top.active {
+  grid-column: 1/span 4;
+}
+.hand-top.inactive {
+  grid-column: 1/span 1;
+}
+.hand-btm.active {
+  grid-column: 2/-1;
+}
+.hand-btm.inactive {
+  grid-column: 5/-1;
+}
+.hand-inner.inactive {
+  overflow-x: hidden;
+}
+.hand-inner.inactive * {
+  opacity: 0.8;
+}
+.hand-inner.inactive .card {
+  border-color: #00000070;
 }
 
 /* Score Section */
@@ -215,11 +247,13 @@ h2 {
   border-radius: 4px;
   background-color: white;
   height: 40px;
-  width: 75px;
   font-size: 1.6rem;
   font-weight: bold;
   transition: all 0.4s;
   cursor: pointer;
+}
+.confirm-btn {
+  width: 75px;
 }
 .wager-btn.disabled {
   cursor: default;
@@ -236,17 +270,18 @@ h2 {
   gap: 40px;
 }
 .result-btn {
-  width: 90px;
+  min-width: 90px;
+  padding: 0 7px;
 }
 .result-btn.new-game-btn {
   background-color: #fbfb1f;
 }
 .wager-btn:hover, .wager-btn:focus,
 .confirm-btn:hover, .confirm-btn:focus,
-.result-btn:hover, .result-btn:focus {
+.result-btn:hover:enabled, .result-btn:focus:enabled {
   background-color: #ffffff60;
 }
-.result-btn.new-game-btn:hover, .result-btn.new-game-btn:focus {
+.result-btn.new-game-btn:hover:enabled, .result-btn.new-game-btn:focus:enabled {
   background-color: #fbfb1f85;
 }
 

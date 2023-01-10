@@ -37,7 +37,10 @@
 
     <section class="card-tray bottom-tray">
       <h2>Player</h2>
-      <div id="hand"></div>
+      <div id="hand">
+        <div class="hand-inner hand-top"></div>
+        <div class="hand-inner hand-btm"></div>
+      </div>
     </section>
     
     <section id="controls">
@@ -81,7 +84,7 @@
       <p id="result-msg"></p>
       <div class="result-btns">
         <button class="result-btn close-result">Close</button>
-        <button class="result-btn new-game-btn">Play Again</button>
+        <button class="result-btn new-game-btn">New Round</button>
       </div>
     </section>
 
@@ -96,7 +99,7 @@
     </section>
 
     <section id="confirmation" class="modal">
-      <p class="confirm-msg">Are you sure you want to dd/surrender?</p>
+      <p class="confirm-msg"></p>
       <div class="confirm-btns">
         <button class="confirm-btn" id="yes" data-id="yes">Confirm</button>
         <button class="confirm-btn" id="no" data-id="no">Cancel</button>

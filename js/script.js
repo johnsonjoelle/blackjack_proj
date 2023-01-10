@@ -12,6 +12,12 @@
   5. Success/Fail Animation
   6. Restart - DONE
   7. Wagers - DONE
+  8. Fix Ace recognition for Split Deck (see hasNewAce) - FIX REQUIRES TESTING
+      if second hand draws an Ace after splitting deck it is not recognised as an 11
+  9. Add Split Results calculations
+  10. Add Split Results msg and winnings
+  11. Add Split Confirmation
+  12. Add New Wager for Split Hand
 
   * HOUSE RULES
   Dealer stands on ALL 17s
@@ -32,6 +38,8 @@ let deckPos = 0;
 let playerCardTotal = 0;
 let dealerCardTotal = 0;
 let dealerCardCount = 0;
+let splitTopTotal = 0;
+let splitBtmTotal = 0;
 const cardLimit = 21;
 const playerTurn = 'player';
 const dealerTurn = 'dealer';
@@ -45,7 +53,12 @@ let holeCard;
 const startingFunds = 300;
 let currentFunds = startingFunds;
 let currentWager = 0;
+let splitWager = 0;
 let surrender = false;
+let split = false;
+let secondHand = false;
+let switchSplit = true;
+let resetCheck = false;
 
 // * Create the Card Array
 function createCardArray() {
@@ -255,7 +268,11 @@ function printWager() {
 }
 function dealPlayerHand() {
   const cardFace = dealCard();
-  $('#hand').append(cardFace);
+  if (split && secondHand) {
+    $('.hand-btm').append(cardFace);
+  } else {
+    $('.hand-top').append(cardFace);
+  }
   sumCards();
 }
 function dealDealerHand() {
@@ -280,13 +297,13 @@ function dealFirstCards() {
       holeCard = tempCardVal; // store value of hole card
       let checkPlayer21 = check21();
       if (checkPlayer21 == 'end') {
-        // Check if dealer also has 21
         $('.hole').addClass('show');
         tempCardVal = holeCard;
         sumCards();
         checkResult();
       } else {
         enableButtons();
+        checkSplitable();
         turn = playerTurn;
       }
     }, 500);
@@ -384,17 +401,74 @@ function doubleDown(confirm) {
   $('#confirmation').hide();
 }
 
+// * Split Hand
+function checkSplitable() {
+  let firstCard = $('.hand-top').find('.card').data("value");
+  let secondCard = $('.hand-top').find('.card').next().data("value");
+  if (firstCard == secondCard) {
+    enableSplit();
+  }
+}
+function confirmSplit() {
+  $('.confirm-msg').text('Split your hand? (Your current hand will be split in two and an additional card will be dealt for each hand. You will need to place a bet for your new hand.)');
+}
+function splitDeck() {
+  // Adjust layout
+  let secondCard = $('.hand-top').find('.card').next();
+  // console.log(secondCard);
+  $('.hand-top').find('.card').next().remove();
+  $('.hand-top').addClass('active');
+  $('.hand-btm').addClass('inactive').append(secondCard[0]);
+  // Change state
+  split=true;
+  // Deal new cards and count new totals
+  splitTopTotal = $('.hand-top .card').data("value");
+  splitBtmTotal = $('.hand-btm .card').data("value");
+  if (splitBtmTotal==1) {splitBtmTotal=11};
+  playerCardTotal = splitTopTotal;
+  dealPlayerHand();
+  setTimeout(() => {
+    secondHand = true;
+    switchSplit = true;
+    dealPlayerHand();
+  }, 500);
+
+  // console.log(`1st Total = ${playerCardTotal}, 2nd Total = ${splitBtmTotal}`);
+  disableSplit();
+}
+function changeToSecondSplit() {
+  secondHand = true;
+  $('.hand-top').removeClass('active').addClass('inactive');
+  $('.hand-btm').addClass('active').removeClass('inactive');
+  let firstCard = $('.hand-btm').find('.card').data("card");
+  let secondCard = $('.hand-btm').find('.card').next().data("card");
+  // Correct value of Ace if the second card in the split hand is Ace
+  if (firstCard!='A' && secondCard=='A') {
+    splitBtmTotal = splitBtmTotal + 10;
+  }
+  playerCardTotal = splitBtmTotal;
+  $('.player-count').text(playerCardTotal);
+  
+  enableButtons();
+}
+
 // * Sum Cards
 function sumCards() {
   if (tempCardVal == 1) {
     tempCardVal = hasNewAce();
   }
   if (turn == 'player') {
-    playerCardTotal += tempCardVal;
-    if (playerCardTotal>21 && playerAceIsEleven) {
-      playerCardTotal = changeAceValue(playerCardTotal); 
+    if (secondHand==true && switchSplit==true) {
+      splitBtmTotal += tempCardVal;
+      switchSplit = false;
+      secondHand = false;
+    } else {
+      playerCardTotal += tempCardVal;
+      if (playerCardTotal>21 && playerAceIsEleven) {
+        playerCardTotal = changeAceValue(playerCardTotal); 
+      }
+      $('.player-count').text(playerCardTotal);
     }
-    $('.player-count').text(playerCardTotal);
   } else {
     dealerCardTotal += tempCardVal;
     if (dealerCardTotal>21 && dealerAceIsEleven) {
@@ -406,22 +480,26 @@ function sumCards() {
 
 // * Dealer's Turn
 function playDealer() {
-  $('.hole').addClass('show');
-  tempCardVal = holeCard;
-  sumCards();
-  if (dealerCardTotal < 17) {
-    let delay = 500;
-    let cardTiming = setInterval(() => {
-      dealDealerHand();
-      sumCards();
-      if (dealerCardTotal > 16) {
-        clearInterval(cardTiming);
-        checkResult();
-      }
-      delay += 500;
-    }, delay);
-  } else {
+  if (split && !secondHand) {
     checkResult();
+  } else {
+    $('.hole').addClass('show');
+    tempCardVal = holeCard;
+    sumCards();
+    if (dealerCardTotal < 17) {
+      let delay = 500;
+      let cardTiming = setInterval(() => {
+        dealDealerHand();
+        sumCards();
+        if (dealerCardTotal > 16) {
+          clearInterval(cardTiming);
+          checkResult();
+        }
+        delay += 500;
+      }, delay);
+    } else {
+      checkResult();
+    }
   }
 }
 
@@ -489,7 +567,7 @@ function disableButtons () {
   $("#surrender-btn").addClass("disabled");
 }
 function disableSplit () {
-  $("#split-btn").prop("disabled", true);
+  $("#split-btn").addClass("disabled");
 }
 // * Reset Board 
 function resetBoard() {
@@ -497,18 +575,29 @@ function resetBoard() {
   playerCardTotal = 0;
   dealerCardTotal = 0;
   dealerCardCount = 0;
+  splitTopTotal = 0;
+  splitBtmTotal = 0;
   dealerHasAce = false;
   dealerAceIsEleven = false;
   playerHasAce = false;
   playerAceIsEleven = false;
   turn = playerTurn;
   currentWager = 0;
+  splitWager = 0;
   surrender = false;
+  split = false;
+  secondHand = false;
+  switchSplit = true;
+  resetCheck = false;
   $('.player-count').text(playerCardTotal);
   $('.dealer-count').text(dealerCardTotal);
-  $('#hand').html('');
+  $('.hand-top').removeClass('active inactive');
+  $('.hand-btm').removeClass('active inactive');
+  $('.result-btn.new-game-btn').prop('enabled');
+  $('.hand-inner').html('');
   $('#dealer').html('');
   $('.modal').hide();
+  $('.close-result').text('Close');
 }
 
 // * End of Game Checks and Functions
@@ -522,51 +611,57 @@ function check21() {
 function checkResult() {
   let result;
   
-  if (surrender == true) {
-    result='surrender';
-    console.log('Player surrenders. House wins!');
-  } else {
-    if (playerCardTotal == 21 && dealerCardTotal == 21) {
-      console.log('Push. End of Round.');
-      result='push';
-      endGame();
-    } else if (playerCardTotal == 21 && dealerCardTotal !=21) {
-      console.log('Player Wins!');
-      result='blackjack';
-      endGame();
-    } else if (dealerCardTotal > 21) {
-      console.log('Player Wins!');
-      result='win';
-      endGame();
-    } else if (playerCardTotal > 21) {
-      console.log('House wins!');
-      result='loss';
-      endGame();
-    } else if (playerCardTotal < 21 && dealerCardTotal == 21) {
-      console.log('House wins!');
-      result='loss';
-      endGame();
-    } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
-      if (playerCardTotal > dealerCardTotal) {
-        console.log('Player Wins!');
-        result='win';
-        endGame();
-      } else if (dealerCardTotal > playerCardTotal) {
-        console.log('House Wins!')
-        result='loss';
-        endGame();
+  if (split) {
+    if (!secondHand) {
+      if (surrender == true) {
+        splitTopTotal = 0;
       } else {
-        console.log('Push. End of Round.');
+        splitTopTotal = playerCardTotal;
+      }
+      changeToSecondSplit();
+    } else {
+      splitBtmTotal = playerCardTotal;
+      //check first and second results
+    }
+  } else {
+    if (surrender == true) {
+      result='surrender';
+    } else {
+      if (playerCardTotal == 21 && dealerCardTotal == 21) {
         result='push';
         endGame();
+      } else if (playerCardTotal == 21 && dealerCardTotal !=21) {
+        result='blackjack';
+        endGame();
+      } else if (dealerCardTotal > 21) {
+        result='win';
+        endGame();
+      } else if (playerCardTotal > 21) {
+        result='loss';
+        endGame();
+      } else if (playerCardTotal < 21 && dealerCardTotal == 21) {
+        result='loss';
+        endGame();
+      } else if (dealerCardTotal > 16 && dealerCardTotal < 21  && playerCardTotal < 21) {
+        if (playerCardTotal > dealerCardTotal) {
+          result='win';
+          endGame();
+        } else if (dealerCardTotal > playerCardTotal) {
+          result='loss';
+          endGame();
+        } else {
+          result='push';
+          endGame();
+        }
+      } else {
+        // Unaccounted game state
+        result='error';
       }
-    } else {
-      console.log('Unaccounted state');
-      result='error';
     }
+
+    setWinnings(result);
+    endMsg(result);
   }
-  setWinnings(result);
-  endMsg(result);
 }
 
 function printFunds() {
@@ -601,6 +696,12 @@ function endMsg(result) {
   }
   $('#winner').text(winner);
   $('#result-msg').text(msg);
+  // if (split && secondHand) {
+  //   $('.result-btn.new-game-btn').prop('disabled', true);
+  //   $('.close-result').text('Go to Second Hand');
+  // } else {
+  //   $('.result-btn.new-game-btn').prop('disabled', false);
+  // }
   $('#results').show();
 }
 
@@ -624,13 +725,15 @@ function init() {
     if (!$("#stand-btn").hasClass('disabled')) {
       disableButtons();
       turn = dealerTurn;
-      // Deal cards if total = 17 or higher
       playDealer();
     }
   });
 
   $('#hit-btn').click(function() {
     if (!$('#hit-btn').hasClass('disabled')) {
+      if (!$('#split-btn').hasClass('disabled')) {
+        disableSplit();
+      }
       dealPlayerHand();
       let gameState = check21();
       if (gameState=='end') {
@@ -641,7 +744,16 @@ function init() {
 
   $('#double-btn').click(function() {
     if (!$("#double-btn").hasClass('disabled')) {
+      if (!$('#split-btn').hasClass('disabled')) {
+        disableSplit();
+      }
       confirmDouble();
+    }
+  });
+
+  $('#split-btn').click(function() {
+    if (!$("#split-btn").hasClass('disabled')) {
+      splitDeck();
     }
   });
 
@@ -661,17 +773,6 @@ function init() {
     $('#results').hide();
   });
 
-  // startBtn.addEventListener('click', () => {
-  //   // Reset game board
-  //   // Shuffle deck
-  //   // Unlock other buttons
-  //   shuffleDeck();
-  //   // console.log(deck);
-  // });
-
-  // drawBtn.addEventListener('click', () => {
-  //   drawCard();
-  // });
 }
 
 document.body.onload = () => {
