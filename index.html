@@ -101,9 +101,21 @@
     <section id="confirmation" class="modal">
       <p class="confirm-msg"></p>
       <div class="confirm-btns">
-        <button class="confirm-btn" id="yes" data-id="yes">Confirm</button>
+        <button class="confirm-btn" id="yes" data-type="unset" data-id="yes">Confirm</button>
         <button class="confirm-btn" id="no" data-id="no">Cancel</button>
       </div>
+    </section>
+
+    <section id="error" class="modal">
+      <p class="error-msg"></p>
+      <button class="close-error">Close</button>
+    </section>
+
+    <section id="split" class="modal">
+      <p class="first-hand modal-header"></p>
+      <p class="second-hand modal-header"></p>
+      <p class="split-winnings"></p>
+      <button id="split-continue">Next Hand</button>
     </section>
   </main>
 

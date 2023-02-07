@@ -236,11 +236,13 @@ h2 {
 }
 .confirm-msg {
   font-size: 1.6rem;
-  padding-bottom: 6px;
+  padding-bottom: 15px;
+  text-align: center;
 }
 .confirm-btns {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 50px;
 }
 .confirm-btn, .result-btn {
   border: 2px solid black;
